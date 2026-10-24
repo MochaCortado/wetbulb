@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heat Plan tests</title>
+<style>
+  :root { --bg: #fff; --fg: #1a1a1a; --muted: #666; --pass: #17803d; --fail: #c62828; --line: #ddd; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #141414; --fg: #eee; --muted: #999; --pass: #5fd38a; --fail: #ff7a7a; --line: #333; } }
+  body { background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, sans-serif; margin: 0; padding: 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 24px 0 8px; }
+  .summary { font-size: 16px; font-weight: 600; margin: 8px 0 16px; }
+  .pass { color: var(--pass); } .fail { color: var(--fail); }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  td, th { border-bottom: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  code { font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Heat Plan tests</h1>
+<div id="summary" class="summary">Running…</div>
+<div id="out"></div>
+<script type="module">
+import { suites } from './run.mjs';
+
+const out = document.getElementById('out');
+const all = [];
+for (const suite of suites) {
+  const results = await suite.run();
+  all.push({ name: suite.name, results });
+  const h = document.createElement('h2');
+  h.textContent = suite.name;
+  out.append(h);
+  const t = document.createElement('table');
+  t.innerHTML = '<tr><th></th><th>Check</th><th>Detail</th></tr>';
+  for (const r of results) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="${r.pass ? 'pass' : 'fail'}">${r.pass ? 'PASS' : 'FAIL'}</td><td></td><td><code></code></td>`;
+    tr.children[1].textContent = r.name;
+    tr.children[2].firstChild.textContent = r.detail ?? '';
+    t.append(tr);
+  }
+  out.append(t);
+}
+const flat = all.flatMap((s) => s.results);
+const failed = flat.filter((r) => !r.pass);
+const s = document.getElementById('summary');
+s.textContent = `${flat.length - failed.length} / ${flat.length} checks passed`;
+s.className = 'summary ' + (failed.length ? 'fail' : 'pass');
+window.__testResults = { total: flat.length, failed: failed.length, suites: all };
+</script>
+</body>
+</html>

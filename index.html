@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heat Plan</title>
+<meta name="description" content="Hour-by-hour work, rest and water plan for outdoor work in heat, from the weather forecast. Anywhere on Earth.">
+<meta name="theme-color" content="#f7f5f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Heat Plan</h1>
+    <p class="tagline">Work, rest and water for outdoor work in heat, from the weather forecast.</p>
+  </div>
+  <button id="units" class="ghost" type="button" aria-label="Switch units">°C · L</button>
+</header>
+
+<main>
+  <section id="place-sec" class="card">
+    <form id="search-form" role="search" class="search">
+      <label class="sr" for="q">Place</label>
+      <input id="q" type="search" placeholder="Town or city" autocomplete="off" enterkeyhint="search">
+      <button type="submit">Search</button>
+    </form>
+    <button id="locate" class="link" type="button">Use my location</button>
+    <ul id="results" class="results" hidden></ul>
+    <p id="place-line" class="place-line"></p>
+    <p id="status" class="status" role="status"></p>
+  </section>
+
+  <section id="jobs-sec" class="card">
+    <div class="tabs" id="job-tabs" role="tablist" aria-label="Jobs"></div>
+    <p id="job-summary" class="job-summary"></p>
+    <details id="job-details" class="job-details">
+    <summary>Change job</summary>
+    <div id="job-editor" class="editor">
+      <label class="field">Name <input id="j-name" maxlength="30" autocomplete="off"></label>
+      <fieldset class="field">
+        <legend>Work</legend>
+        <div class="choices" id="j-work">
+          <label><input type="radio" name="work" value="light"><span><b>Light</b> Driving, inspecting, light hand tools</span></label>
+          <label><input type="radio" name="work" value="moderate"><span><b>Moderate</b> Walking with loads, hammering, weeding, picking</span></label>
+          <label><input type="radio" name="work" value="heavy"><span><b>Heavy</b> Shovelling, digging, sawing, carrying heavy loads</span></label>
+          <label><input type="radio" name="work" value="veryHeavy"><span><b>Very heavy</b> Fast digging, climbing with loads, running</span></label>
+        </div>
+      </fieldset>
+      <div class="pair">
+        <fieldset class="field">
+          <legend>Work in</legend>
+          <div class="seg"><label><input type="radio" name="where" value="sun"><span>Sun</span></label><label><input type="radio" name="where" value="shade"><span>Shade</span></label></div>
+        </fieldset>
+        <fieldset class="field">
+          <legend>Breaks in</legend>
+          <div class="seg"><label><input type="radio" name="breaks" value="shade"><span>Shade</span></label><label><input type="radio" name="breaks" value="same"><span>Same place</span></label></div>
+        </fieldset>
+      </div>
+      <fieldset class="field">
+        <legend>Workers</legend>
+        <div class="seg"><label><input type="radio" name="crew" value="acclimatized"><span>Used to the heat</span></label><label><input type="radio" name="crew" value="new"><span>New or higher risk</span></label></div>
+        <p class="hint">Higher risk: new or back from a week or more away, over 60, heart or kidney disease, pregnancy, some medicines, past heat illness.</p>
+      </fieldset>
+      <label class="field">Clothing <select id="j-cloth"></select></label>
+      <button id="j-remove" class="link warn" type="button">Remove this job</button>
+    </div>
+    </details>
+    <div class="shift">
+      <span>Shift</span>
+      <label class="sr" for="shift-start">Shift start</label><select id="shift-start"></select>
+      <span>to</span>
+      <label class="sr" for="shift-end">Shift end</label><select id="shift-end"></select>
+    </div>
+  </section>
+
+  <section id="now-sec" class="card now" aria-live="polite" hidden></section>
+
+  <section id="week-sec" class="card" hidden>
+    <h2 id="week-title">7 days</h2>
+    <div id="grid" class="grid"></div>
+    <ul class="legend" aria-label="Legend">
+      <li><i class="lv0"></i>Work normally</li>
+      <li><i class="lv1"></i>45+ min work</li>
+      <li><i class="lv2"></i>30+ min</li>
+      <li><i class="lv3"></i>15+ min</li>
+      <li><i class="lv4"></i>No work</li>
+      <li><i class="lv5"></i>Danger</li>
+    </ul>
+  </section>
+
+  <section id="day-sec" class="card" hidden>
+    <div class="day-head">
+      <button id="day-prev" class="ghost" type="button" aria-label="Previous day">‹</button>
+      <h2 id="day-title"></h2>
+      <button id="day-next" class="ghost" type="button" aria-label="Next day">›</button>
+    </div>
+    <label class="check"><input type="checkbox" id="shift-only" checked> Shift hours only</label>
+    <p class="hint">Each hour: minutes of work / minutes of rest, and how often to drink a cup (240 mL).</p>
+    <div class="table-wrap"><table id="day-table" class="day-table"></table></div>
+    <div id="water-total" class="water-total"></div>
+    <div class="actions">
+      <button id="copy-text" type="button">Copy plan as text</button>
+      <button id="share" type="button" hidden>Share</button>
+      <button id="copy-link" type="button" class="ghost">Copy link</button>
+      <button id="print" type="button" class="ghost">Print</button>
+    </div>
+  </section>
+
+  <section id="aid-sec" class="card">
+    <h2>First aid</h2>
+    <div class="aid stroke">
+      <h3>Heat stroke: emergency</h3>
+      <p>Confusion, slurred speech, collapse or seizures, very hot skin. They may still be sweating.</p>
+      <ol>
+        <li>Call emergency services.</li>
+        <li>Cool them now, before transport: a cold water or ice bath if possible. Otherwise soak skin and clothes with cool water and fan them; ice or cold wet cloths on neck, armpits and groin.</li>
+        <li>Stay with them until help arrives.</li>
+      </ol>
+    </div>
+    <div class="aid">
+      <h3>Heat exhaustion</h3>
+      <p>Headache, nausea, dizziness, weakness, heavy sweating, thirst.</p>
+      <ol>
+        <li>Move to a cool place; remove extra clothing, shoes and socks.</li>
+        <li>Frequent sips of cool water; cold water on head, face and neck.</li>
+        <li>Get medical care. If they become confused or worse, treat as heat stroke.</li>
+      </ol>
+    </div>
+    <div class="aid">
+      <h3>Heat cramps</h3>
+      <p>Muscle cramps or spasms.</p>
+      <ol>
+        <li>Water with a snack, or a sports drink. No salt tablets.</li>
+        <li>Medical help if cramps last over an hour, or with heart problems or a low-salt diet.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="acclim-sec" class="card">
+    <h2>Getting used to heat</h2>
+    <p>New workers: at most 20% of a normal day in the heat on day 1, then at most 20% more each day. Returning workers: 50%, 60%, 80%, then 100%.</p>
+    <div class="table-wrap"><table id="acclim-table" class="acclim"></table></div>
+    <p>After 2 hours of sweating, drink sports drinks or other drinks with salts, and eat regular meals.</p>
+  </section>
+
+  <details id="method" class="card method">
+    <summary>Method and sources</summary>
+    <ul>
+      <li>Heat stress is WBGT (wet bulb globe temperature), estimated from the hourly forecast with the Liljegren model (Argonne National Laboratory, 2008). Model error is about 1 °C; forecast error adds to it. Forecast wind below 0.62 m/s is raised to 0.62 m/s, as in KNMI's operational WBGT.</li>
+      <li>Work and rest: NIOSH 2016 exposure limits (REL for workers used to heat, RAL for new or higher-risk workers) as hourly averages that include breaks, in 15-minute steps. Clothing adjustments: NIOSH 2016 Table 3-2.</li>
+      <li>Water: US Army TB MED 507 (2022), Table 3-3. Never more than 1.5 qt (1.4 L) an hour or 12 qt (11 L) a day. 1 cup = 240 mL = 8 oz.</li>
+      <li>Outdoor work only. Not for indoor heat, furnaces or other hot equipment.</li>
+      <li>The limits protect most healthy workers, not all. Watch each other; stop at the first signs of heat illness.</li>
+      <li>This product includes software produced by UChicago Argonne, LLC under Contract No. DE-AC02-06CH11357 with the Department of Energy.</li>
+      <li>Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (CC BY 4.0).</li>
+    </ul>
+  </details>
+</main>
+
+<footer class="foot">Forecast estimate, not a measurement.</footer>
+
+<script type="module" src="src/app.mjs"></script>
+</body>
+</html>

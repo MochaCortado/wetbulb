@@ -1,0 +1,5 @@
+# Test-only oracle with no licence: never publish (see ref/README.md)
+ref/liljegren-oracle.json
+# Working notes and local captures
+HANDOFF.md
+out/

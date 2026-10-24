@@ -1,0 +1,11 @@
+{
+  "name": "Heat Plan",
+  "short_name": "Heat Plan",
+  "description": "Hour-by-hour work, rest and water plan for outdoor work in heat.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5f1",
+  "theme_color": "#b5400f",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
