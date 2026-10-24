@@ -42,3 +42,7 @@ No build step and no dependencies. Serve the folder with any static file server.
 - WBGT model: James C. Liljegren, Argonne National Laboratory. Solar position: Nels Larson, Pacific Northwest National Laboratory. This product includes software produced by UChicago Argonne, LLC under Contract No. DE-AC02-06CH11357 with the Department of Energy.
 - Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0).
 - Andrew Anderson ([@mochacortado](https://x.com/mochacortado)).
+
+## Licence
+
+MIT, except `src/wbgt.mjs` and `ref/`, which keep the UChicago Argonne licence (see `LICENSE`).
